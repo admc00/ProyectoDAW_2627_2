@@ -12,6 +12,8 @@
         <title>JSP Page</title>
     </head>
     <body>
-        <h1>Hello World!</h1>
+        <h1>Home</h1>
+        <a href="/home/users/login">Iniciar Sesión<a/>
+        <a href="/home/users/register">Registrarse<a/>
     </body>
 </html>

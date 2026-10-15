@@ -18,11 +18,11 @@ import java.io.Serializable;
  * @author FX506
  */
 @Entity
-@Table(name="usuarios")
+@Table(name = "usuarios")
 @NamedQueries({
-    @NamedQuery(name="Usuarios.findAll", query="SELECT u From Usuarios u"),
-    @NamedQuery(name="Usuarios.findByEmail", query="SELECT u FROM Usuarios u WHERE u.email =:email")
-    
+    @NamedQuery(name = "Usuarios.findAll", query = "SELECT u From Usuarios u"),
+    @NamedQuery(name = "Usuarios.findByEmail", query = "SELECT u FROM Usuarios u WHERE u.email =:email")
+
 })
 public class Usuarios implements Serializable {
 
@@ -39,18 +39,23 @@ public class Usuarios implements Serializable {
         this.Bibliografía = Bibliografía;
     }
 
+    public Usuarios(String nombre, String email, String contraseña) {
+        this.nombre = nombre;
+        this.email = email;
+        this.contraseña = contraseña;
+
+    }
+
     public Usuarios() {
     }
 
-    
     private String nombre;
     private String email;
     private String contraseña;
     private String perfilUrl;
     private String Bibliografía;
-    
-    
-      public String getNombre() {
+
+    public String getNombre() {
         return nombre;
     }
 
@@ -122,5 +127,5 @@ public class Usuarios implements Serializable {
     public String toString() {
         return "daw.model.Usuarios[ id=" + id + " ]";
     }
-    
+
 }

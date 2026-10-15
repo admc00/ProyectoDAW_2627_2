@@ -12,21 +12,17 @@
         <title>JSP Page</title>
     </head>
     <body>
-        <h1>Registro Usuario</h1>
+        <h1>Iniciar Sesión</h1>
         
-        <form action="/home/usuarios/save" method="POST">
-            <label for="nombre">Nombre:</label>
-            <input id="nombre type=text"><br/> 
+        <form action="/home/users/login" method="POST">
             <label for="email">Email:</label>
             <input id="email type=text"><br/> 
             <label for="contraseña">Contraseña:</label>
             <input id="contraseña type=text"><br/> 
-            <label for="contraseña">Repetir Contraseña:</label>
-            <input id="contraseña type=text"><br/> 
             
-            <input type="submit" value="Guardar" />
+            <input type="submit" value="Iniciar Sesión" />
             
-            <a href="/home/home">Inicio</a>
+            <a href="/home/">Inicio</a>
         </form>
     </body>
 </html>
