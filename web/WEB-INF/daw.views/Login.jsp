@@ -16,9 +16,9 @@
         
         <form action="/home/users/login" method="POST">
             <label for="email">Email:</label>
-            <input id="email type=text"><br/> 
-            <label for="contraseña">Contraseña:</label>
-            <input id="contraseña type=text"><br/> 
+            <input id="email" type="text" name="email" required><br/> 
+            <label for="contrasena">Contraseña:</label>
+            <input id="contrasena" type="password" name="contrasena" required><br/> 
             
             <input type="submit" value="Iniciar Sesión" />
             

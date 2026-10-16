@@ -9,6 +9,8 @@ import daw.model.Usuarios;
 import jakarta.annotation.Resource;
 import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.NamedQueries;
+import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
 import jakarta.servlet.RequestDispatcher;
@@ -19,6 +21,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.UserTransaction;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -134,7 +137,38 @@ public class UsuariosController extends HttpServlet {
         return "Short description";
     }// </editor-fold>
 
-    private void iniciarsesion(HttpServletRequest request, HttpServletResponse response) {
+    private void iniciarsesion(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+
+        String contrasena = request.getParameter("contrasena");
+        String email = request.getParameter("email");
+
+        try {
+            if (contrasena == null || email == null) {
+                throw new IllegalArgumentException("Datos no válidos");
+            }
+            TypedQuery<Usuarios> queryUsuarios = em.createNamedQuery("Usuarios.findByEmail", Usuarios.class);
+            queryUsuarios.setParameter("email", email);
+            if (email.equals(queryUsuarios.getSingleResult().getEmail())) {
+                Usuarios u = queryUsuarios.getSingleResult();
+
+                if (verificarPassword(contrasena, u.getContraseña())) {
+                    HttpSession sesion = request.getSession();
+                    sesion.setAttribute("usuarioLogueado", u);
+                    response.sendRedirect(request.getContextPath());
+                }
+                else{
+                    throw new SecurityException("No coinciden las contraseñas");
+                }
+            } else {
+                throw new NoResultException();
+            }
+
+        } catch (Exception e) {
+            
+            RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/daw.views/login.jsp");
+            dispatcher.forward(request, response);
+        }
+
     }
 
     private void crearusuario(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
