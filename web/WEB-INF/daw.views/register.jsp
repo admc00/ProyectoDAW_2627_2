@@ -12,6 +12,9 @@
         <title>JSP Page</title>
     </head>
     <body>
+        
+        <jsp:include page="/WEB-INF/daw.views/barraNavegacion.jsp" />
+        
         <h1>Registro Usuario</h1>
 
     <form id="formulario" action="/home/users/register" method="POST">

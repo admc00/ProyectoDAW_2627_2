@@ -13,16 +13,10 @@
         <title>JSP Page</title>
     </head>
     <body>
-        <h1>Home</h1>
-        <c:if test="${not empty sesion.u}" >
-            <a href="/home/users/perfil"> Mi perfil</a>
-            <a href="/home/users/logout"> Cerrar Sesion</a>
-        </c:if>
-            
-        <c:if test="${ empty sesion.u}" >
-            <a href="/home/users/login">Iniciar Sesión<a/>
-            <a href="/home/users/register">Registrarse<a/>
-        </c:if>
         
+        <jsp:include page="/WEB-INF/daw.views/barraNavegacion.jsp" />
+        
+        <h1>Home</h1>
+       
     </body>
 </html>

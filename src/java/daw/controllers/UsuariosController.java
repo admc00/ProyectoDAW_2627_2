@@ -57,7 +57,7 @@ public class UsuariosController extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        String vista;
+        String vista = "/home";
 
         String accion = "/users";
         if (request.getServletPath().equals(accion)) {
@@ -76,6 +76,15 @@ public class UsuariosController extends HttpServlet {
 
             case "/register":
                 vista = "register";
+                break;
+
+            case "/logout":
+                HttpSession sesion = request.getSession();
+                
+                if (sesion != null) {
+                    sesion.invalidate();
+
+                }
                 break;
 
             default:
@@ -155,8 +164,7 @@ public class UsuariosController extends HttpServlet {
                     HttpSession sesion = request.getSession();
                     sesion.setAttribute("usuarioLogueado", u);
                     response.sendRedirect(request.getContextPath());
-                }
-                else{
+                } else {
                     throw new SecurityException("No coinciden las contraseñas");
                 }
             } else {
@@ -164,7 +172,7 @@ public class UsuariosController extends HttpServlet {
             }
 
         } catch (Exception e) {
-            
+
             RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/daw.views/login.jsp");
             dispatcher.forward(request, response);
         }

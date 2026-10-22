@@ -12,6 +12,9 @@
         <title>JSP Page</title>
     </head>
     <body>
+        
+        <jsp:include page="/WEB-INF/daw.views/barraNavegacion.jsp" />
+        
         <h1>Iniciar Sesión</h1>
         
         <form action="/home/users/login" method="POST">

@@ -10,8 +10,10 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.NamedQueries;
 import jakarta.persistence.NamedQuery;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.io.Serializable;
+import java.util.List;
 
 /**
  *
@@ -102,6 +104,32 @@ public class Usuarios implements Serializable {
     public void setId(Long id) {
         this.id = id;
     }
+
+    public List<Reseña> getResenas() {
+        return resenas;
+    }
+
+    public void setResenas(List<Reseña> resenas) {
+        this.resenas = resenas;
+    }
+
+    public List<Comentario> getComentarios() {
+        return comentarios;
+    }
+
+    public void setComentarios(List<Comentario> comentarios) {
+        this.comentarios = comentarios;
+    }
+    
+    
+    
+     //Relaciones
+    
+    @OneToMany(mappedBy = "usuarios")
+    private List<Reseña> resenas;
+    
+    @OneToMany(mappedBy = "usuarios")
+    private List<Comentario> comentarios;
 
     @Override
     public int hashCode() {
