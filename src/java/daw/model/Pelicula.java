@@ -102,7 +102,7 @@ public class Pelicula implements Serializable {
     
     
     
-      //Relaciones
+    //Relaciones
     
     @OneToMany(mappedBy = "pelicula")
     private List<Reseña> resena;

@@ -103,13 +103,11 @@ public class Reseña implements Serializable {
     
     
     
-     //Relaciones
+    //Relaciones
     @ManyToOne
-    @JoinColumn(name = "idUsuario")
     private Usuarios usuarios;
     
     @ManyToOne
-    @JoinColumn(name = "idPelicula")
     private Pelicula pelicula;
     
     @OneToMany(mappedBy = "resena")

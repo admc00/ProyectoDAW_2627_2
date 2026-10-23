@@ -9,13 +9,11 @@ import daw.model.Usuarios;
 import jakarta.annotation.Resource;
 import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.NamedQueries;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
 import jakarta.servlet.RequestDispatcher;
 import java.io.IOException;
-import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -197,7 +195,7 @@ public class UsuariosController extends HttpServlet {
                 throw new IllegalArgumentException("Las dos contraseñas no coinciden.");
             }
 
-            TypedQuery<Long> queryEmail = em.createQuery("SELECT COUNT(u) FROM Usuarios u WHERE u.email = :email", Long.class);
+            TypedQuery<Integer> queryEmail = em.createQuery("SELECT COUNT(u) FROM Usuarios u WHERE u.email = :email", Integer.class);
             queryEmail.setParameter("email", email);
             if (queryEmail.getSingleResult() > 0) {
                 throw new EntityExistsException("Ya existe el correo electrónico.");

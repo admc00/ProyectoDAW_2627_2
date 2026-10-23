@@ -123,7 +123,7 @@ public class Usuarios implements Serializable {
     
     
     
-     //Relaciones
+    //Relaciones
     
     @OneToMany(mappedBy = "usuarios")
     private List<Reseña> resenas;

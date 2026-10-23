@@ -80,13 +80,11 @@ public class Comentario implements Serializable {
     
     
     
-     //Relaciones
+    //Relaciones
     @ManyToOne
-    @JoinColumn(name = "idReseña")
     private Reseña resena;
     
     @ManyToOne
-    @JoinColumn(name = "idUsuario")
     private Usuarios usuarios;
 
     @Override
