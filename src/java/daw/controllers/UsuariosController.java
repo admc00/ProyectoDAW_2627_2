@@ -61,8 +61,6 @@ public class UsuariosController extends HttpServlet {
         if (request.getServletPath().equals(accion)) {
             if (request.getPathInfo() != null) {
                 accion = request.getPathInfo();
-            } else {
-                accion = "error";
             }
         }
 

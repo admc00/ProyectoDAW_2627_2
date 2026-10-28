@@ -19,18 +19,31 @@
             <div class="d-flex gap-3 align-items-center ">
                 <c:if test="${not empty sessionScope.usuarioLogueado}">
 
-                    <a style="color: #00ff00" href="/home/users/perfil">
-                        Mi Perfil
-                    </a>
 
-                    <a style="color: #00ff00" href="/home/users/logout">Cerrar Sesión</a>
 
-                </c:if>
+                    <c:if test="${usuarioLogueado.email eq 'admc0000@gmail.com'}">
 
-                <c:if test="${empty sessionScope.usuarioLogueado}">
-                    <a style="color: #00ff00" href="/home/users/login">Iniciar Sesión</a>
-                    <a style="color: #00ff00" href="/home/users/register">Registrarse</a>
-                </c:if>
+                        <a style="color: #00ff00" href="/home/pelicula/gestion">Gestionar Peliculas</a>
+
+                        </c:if>
+
+                        <c:if test="${usuarioLogueado.email ne 'admc0000@gmail.com'}">
+
+                            <a style="color: #00ff00" href="/home/users/perfil">
+                                Mi Perfil
+                            </a>
+
+                        </c:if>
+
+
+                        <a style="color: #00ff00" href="/home/users/logout">Cerrar Sesión</a>
+
+                    </c:if>
+
+                    <c:if test="${empty sessionScope.usuarioLogueado}">
+                        <a style="color: #00ff00" href="/home/users/login">Iniciar Sesión</a>
+                        <a style="color: #00ff00" href="/home/users/register">Registrarse</a>
+                    </c:if>
             </div>
 
         </div>
