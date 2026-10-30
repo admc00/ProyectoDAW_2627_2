@@ -29,11 +29,7 @@
 
                     <div >
 
-
-
                         <button id="botonAnadir" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#myModal" > Añadir Películas </button>
-
-
 
                     </div>
 
@@ -62,7 +58,7 @@
                         <h5 class="modal-title">Datos de la película</h5>
                     </div>
                     <div class="modal-body">
-                        <form action="/home/pelicula/añadir" method="POST">
+                        <form action="/home/pelicula/añadir" method="POST" enctype="multipart/form-data">
 
                             <div class="d-flex align-items-center mb-3">
 
@@ -94,8 +90,8 @@
 
                             <div class="d-flex align-items-center mb-0">
 
-                                <label style="width: 100px" for="puntuacionMedia"  type="number">Puntuación Media:</label>
-                                <select id="puntuacion" name="puntuacion" class="form-select-sm" >
+                                <label style="width: 100px" for="puntuacionMedia">Puntuación Media:</label>
+                                <select id="puntuacion" name="puntuacion" type="number" class="form-select-sm" >
                                     <option value="10">10</option>
                                     <option value="9">9</option>
                                     <option value="8">8</option>

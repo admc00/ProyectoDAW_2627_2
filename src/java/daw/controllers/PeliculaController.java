@@ -13,12 +13,19 @@ import jakarta.persistence.TypedQuery;
 import jakarta.servlet.RequestDispatcher;
 import java.io.IOException;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import jakarta.servlet.http.Part;
 import jakarta.transaction.UserTransaction;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
+import static java.lang.Float.parseFloat;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -26,6 +33,7 @@ import java.util.logging.Logger;
  *
  * @author FX506
  */
+@MultipartConfig
 @WebServlet(name = "PeliculaController", urlPatterns = {"/pelicula/*"})
 public class PeliculaController extends HttpServlet {
 
@@ -137,13 +145,64 @@ public class PeliculaController extends HttpServlet {
 
                 case "/añadir":
 
+                    String titulo = request.getParameter("titulo");
+                    String descripcion = request.getParameter("descripcion");
+                    String fecha = request.getParameter("fecha");
+                    String puntuacion = request.getParameter("puntuacionMedia");
+                    final Part posterPart = request.getPart("poster");
+
+                    try {
+
+                        if (titulo == null | descripcion == null | fecha == null | puntuacion == null | posterPart == null) {
+                            throw new IllegalArgumentException("Datos no válidos");
+                        }
+                        
+                        String relativePathFolder = "" + File.separator + "img" + File.separator + "posters";
+                        String absolutePathFolder = getServletContext().getRealPath(relativePathFolder);
+                        
+                        String filename = "poster-" + titulo;
+                        
+                        String posterUrl = "" + File.separator + relativePathFolder + File.separator + filename;
+                        
+                        Pelicula p = new Pelicula();
+                        p.setTitulo(titulo);
+                        p.setFecha_estreno(fecha);
+                        p.setDescripcion(descripcion);
+                        p.setPuntuacionMedia(parseFloat(puntuacion));
+                        p.setPosterUrl(posterUrl);
+                        
+                        utx.begin();
+                        em.persist(p);
+                        utx.commit();
+                        
+                        File f = new File(absolutePathFolder + File.separator + filename + ".jpg");
+                        
+                        OutputStream fos = new FileOutputStream(f);
+                        InputStream filecontent = posterPart.getInputStream();
+                        int read = 0;
+                        final byte[] bytes = new byte[1024];
+                        while((read = filecontent.read(bytes)) != -1){
+                            fos.write(bytes,0,read);
+                        }
+                        fos.close();
+                        filecontent.close();
+                        
+
+                    } catch (Exception e) {
+                        System.err.println("ERROR CAPTURADO EN EL CATCH:");
+                        e.printStackTrace();
+
+                        request.setAttribute("error", e.getMessage());
+
+                    }
+
                 case "/editar":
 
                 case "/eliminar":
 
             }
         } else {
-            
+
             RequestDispatcher rd = request.getRequestDispatcher("/WEB-INF/daw.views/error.jsp");
             rd.forward(request, response);
         }
