@@ -8,6 +8,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.NamedQueries;
+import jakarta.persistence.NamedQuery;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.io.Serializable;
@@ -19,6 +21,9 @@ import java.util.List;
  */
 @Entity
 @Table(name = "pelicula")
+@NamedQueries({
+    @NamedQuery(name = "Peliculas.findAll", query = "SELECT p From Pelicula p"),
+})
 public class Pelicula implements Serializable {
 
     private static final long serialVersionUID = 1L;

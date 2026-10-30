@@ -6,6 +6,13 @@
 let f = document.getElementById("formulario");
 f.addEventListener("submit", checkData);
 
+const myModal = document.getElementById('myModal');
+const myInput = document.getElementById('botonAnadir');
+
+myModal.addEventListener('shown.bs.modal', () => {
+    myInput.focus();
+});
+
 function checkData(evt) {
 
     let ok = true;
@@ -18,7 +25,7 @@ function checkData(evt) {
         evt.preventDefault();
         ok = false;
     }
-    
+
     if (con1 !== con2) {
         alert("Las contraseñas introducidas no coinciden.");
         evt.preventDefault();

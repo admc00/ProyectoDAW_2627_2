@@ -4,7 +4,7 @@
     Author     : admc0
 --%>
 
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html>
@@ -12,7 +12,7 @@
     <nav class="navbar py-3" style="background-color: #000066">
         <div  class ="container-fluid d-flex justify-content-between align-items-center">
 
-            <a style="color: #00ff00" href="/home">
+            <a class="text-decoration-none" style="color: #00ff00" href="/home">
                 Inicio
             </a>
 
@@ -23,26 +23,26 @@
 
                     <c:if test="${usuarioLogueado.email eq 'admc0000@gmail.com'}">
 
-                        <a style="color: #00ff00" href="/home/pelicula/gestion">Gestionar Peliculas</a>
+                        <a class="text-decoration-none" style="color: #00ff00" href="/home/pelicula/gestion">Gestionar Peliculas</a>
 
                         </c:if>
 
                         <c:if test="${usuarioLogueado.email ne 'admc0000@gmail.com'}">
 
-                            <a style="color: #00ff00" href="/home/users/perfil">
+                            <a class="text-decoration-none" style="color: #00ff00" href="/home/users/perfil">
                                 Mi Perfil
                             </a>
 
                         </c:if>
 
 
-                        <a style="color: #00ff00" href="/home/users/logout">Cerrar Sesión</a>
+                        <a class="text-decoration-none" style="color: #00ff00" href="/home/users/logout">Cerrar Sesión</a>
 
                     </c:if>
 
                     <c:if test="${empty sessionScope.usuarioLogueado}">
-                        <a style="color: #00ff00" href="/home/users/login">Iniciar Sesión</a>
-                        <a style="color: #00ff00" href="/home/users/register">Registrarse</a>
+                        <a class="text-decoration-none" style="color: #00ff00" href="/home/users/login">Iniciar Sesión</a>
+                        <a class="text-decoration-none" style="color: #00ff00" href="/home/users/register">Registrarse</a>
                     </c:if>
             </div>
 

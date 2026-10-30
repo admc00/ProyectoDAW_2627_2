@@ -55,7 +55,7 @@ public class UsuariosController extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        String vista = "/home";
+        String vista = "home";
 
         String accion = "/users";
         if (request.getServletPath().equals(accion)) {
