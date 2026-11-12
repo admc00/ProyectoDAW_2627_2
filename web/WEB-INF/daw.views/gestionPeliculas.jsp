@@ -23,7 +23,7 @@
 
                 <h1>Listado peliculas</h1>
 
-                <c:if test="${ empty sessionScope.peliculas}">
+                <c:if test="${empty requestScope.peliculas}">
 
                     <p class="mb-3"> No hay películas en la lista... </p>
 
@@ -40,11 +40,53 @@
 
 
 
-                <c:if test="${not empty sessionScope.peliculas}">
+                <c:if test="${not empty requestScope.peliculas}">
 
-                    <c:forEach var="pelicula" items="${peliculas}">
 
-                    </c:forEach>
+
+                    <div class="row w-100">
+                        <c:forEach var="pelicula" items="${peliculas}">
+                            <div class="col-md-4 mb-3">
+                                <div class="card">
+                                    <img src="${pageContext.request.contextPath}/img/posters/${pelicula.posterUrl}.jpg" class="card-img-top" alt="${pelicula.titulo}">
+                                    <div class="card-body">
+                                        <h5 class="card-title">${pelicula.titulo}</h5>
+                                        <p class="card-text">${pelicula.descripcion}</p>
+                                        <p class="text-muted">Estreno: ${pelicula.fecha_estreno} | Nota: ${pelicula.puntuacionMedia}</p>
+                                    </div>
+                                    <div class="container-fluid d-flex justify-content-between">
+
+                                        <div class="mb-3">
+
+                                            <button id="botonEditar" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#ModalEditarPeli"
+                                                    data-bs-id="${pelicula.id}"
+                                                    data-bs-titulo="${pelicula.titulo}"
+                                                    data-bs-descripcion="${pelicula.descripcion}"
+                                                    data-bs-fecha="${pelicula.fecha_estreno}"
+                                                    data-bs-puntuacion="${pelicula.puntuacionMedia}" 
+                                                    > Editar </button>
+
+
+                                        </div>
+                                        <div class="mb-3">
+
+
+                                            <button id="botonEliminar" class="btn btn-danger" > Eliminar </button>
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+                            </div>
+                        </c:forEach>
+                    </div>
+
+                    <div class="mt-3">
+
+                        <button id="botonAnadir" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#myModal" > Añadir Películas </button>
+
+                    </div>
 
                 </c:if>
             </div>
@@ -58,7 +100,7 @@
                         <h5 class="modal-title">Datos de la película</h5>
                     </div>
                     <div class="modal-body">
-                        <form action="/home/pelicula/añadir" method="POST" enctype="multipart/form-data">
+                        <form id="formPeliculas" action="/home/pelicula/anadir" method="POST" enctype="multipart/form-data">
 
                             <div class="d-flex align-items-center mb-3">
 
@@ -91,7 +133,7 @@
                             <div class="d-flex align-items-center mb-0">
 
                                 <label style="width: 100px" for="puntuacionMedia">Puntuación Media:</label>
-                                <select id="puntuacion" name="puntuacion" type="number" class="form-select-sm" >
+                                <select id="puntuacion" name="puntuacionMedia" type="number" class="form-select-sm" >
                                     <option value="10">10</option>
                                     <option value="9">9</option>
                                     <option value="8">8</option>
@@ -103,17 +145,100 @@
                                     <option value="2">2</option>
                                     <option value="1">1</option>
                                     <option value="0">0</option>
-                                    <option value="" selected disable hidden >Elige una opcion</option>
+                                    <option value="" selected disabled hidden >Elige una opcion</option>
                                 </select>
 
                             </div>
 
+
+
                         </form>
+
+
+
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                        <button type="button" class="btn btn-primary">Añadir Película</button>
+                        <button type="submit" form="formPeliculas" class="btn btn-primary">Añadir Película</button>
                     </div>
+
+                </div>
+            </div>
+        </div>
+
+
+        <div class="modal fade" id="ModalEditarPeli" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Datos de la película</h5>
+                    </div>
+                    <div class="modal-body">
+                        <form id="formEditarPelicula" action="/home/pelicula/editar" method="POST" enctype="multipart/form-data">
+
+                            
+                            <input type="hidden" id="edit-id" name="id">
+                            
+                            <div class="d-flex align-items-center mb-3">
+
+                                <label style="width: 100px" for="edit-titulo">Título:</label>
+                                <input id="edit-titulo" type="text" name="titulo" required>
+
+                            </div>
+
+                            <div class="d-flex align-items-center mb-3">
+
+                                <label style="width: 100px" for="edit-descripcion">Descripción:</label>
+                                <input id="edit-descripcion" name="descripcion">
+
+                            </div>
+
+                            <div class="d-flex align-items-center mb-3">
+
+                                <label style="width: 100px" for="edit-fecha" >Fecha de Estreno:</label>
+                                <input id="edit-fecha" name="fecha" type="date">
+
+                            </div>
+
+                            <div class="d-flex align-items-center mb-3">
+
+                                <label style="width: 100px" for="edit-poster"> Póster:</label>
+                                <input id="edit-poster" name ="poster" type="file">
+
+                            </div>
+
+                            <div class="d-flex align-items-center mb-0">
+
+                                <label style="width: 100px" for="edit-puntuacionMedia">Puntuación Media:</label>
+                                <select id="edit-puntuacion" name="puntuacionMedia" type="number" class="form-select-sm" >
+                                    <option value="10">10</option>
+                                    <option value="9">9</option>
+                                    <option value="8">8</option>
+                                    <option value="7">7</option>
+                                    <option value="6">6</option>
+                                    <option value="5">5</option>
+                                    <option value="4">4</option>
+                                    <option value="3">3</option>
+                                    <option value="2">2</option>
+                                    <option value="1">1</option>
+                                    <option value="0">0</option>
+                                    <option value="" selected disabled hidden >Elige una opcion</option>
+                                </select>
+
+                            </div>
+
+
+
+                        </form>
+
+
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                        <button type="submit" form="formEditarPelicula" class="btn btn-primary">Editar Película</button>
+                    </div>
+
                 </div>
             </div>
         </div>

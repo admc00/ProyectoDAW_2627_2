@@ -28,6 +28,7 @@ import java.io.OutputStream;
 import static java.lang.Float.parseFloat;
 import java.util.List;
 import java.util.logging.Logger;
+import java.util.logging.Level;
 
 /**
  *
@@ -143,7 +144,7 @@ public class PeliculaController extends HttpServlet {
 
             switch (accion) {
 
-                case "/añadir":
+                case "/anadir":
 
                     String titulo = request.getParameter("titulo");
                     String descripcion = request.getParameter("descripcion");
@@ -153,40 +154,50 @@ public class PeliculaController extends HttpServlet {
 
                     try {
 
-                        if (titulo == null | descripcion == null | fecha == null | puntuacion == null | posterPart == null) {
+                        if (titulo == null || descripcion == null || fecha == null || puntuacion == null || posterPart == null) {
                             throw new IllegalArgumentException("Datos no válidos");
                         }
-                        
+
                         String relativePathFolder = "" + File.separator + "img" + File.separator + "posters";
+                        Log.log(Level.INFO, "webPath: {0} ", relativePathFolder);
                         String absolutePathFolder = getServletContext().getRealPath(relativePathFolder);
-                        
-                        String filename = "poster-" + titulo;
-                        
-                        String posterUrl = "" + File.separator + relativePathFolder + File.separator + filename;
-                        
+                        Log.log(Level.INFO, "Path: {0} ", absolutePathFolder);
+
+                        File folder = new File(absolutePathFolder);
+                        if (!folder.exists()) {
+                            folder.mkdirs();
+                        }
+
+                        String tituloLimpio = titulo.trim().toLowerCase()
+                                .replaceAll("[^a-z0-9]", "-");
+
+                        String filename = "poster-" + tituloLimpio;
+                        String posterUrl = filename;
+
                         Pelicula p = new Pelicula();
                         p.setTitulo(titulo);
                         p.setFecha_estreno(fecha);
                         p.setDescripcion(descripcion);
                         p.setPuntuacionMedia(parseFloat(puntuacion));
                         p.setPosterUrl(posterUrl);
-                        
+
                         utx.begin();
                         em.persist(p);
                         utx.commit();
-                        
+
                         File f = new File(absolutePathFolder + File.separator + filename + ".jpg");
-                        
                         OutputStream fos = new FileOutputStream(f);
                         InputStream filecontent = posterPart.getInputStream();
                         int read = 0;
                         final byte[] bytes = new byte[1024];
-                        while((read = filecontent.read(bytes)) != -1){
-                            fos.write(bytes,0,read);
+                        while ((read = filecontent.read(bytes)) != -1) {
+                            fos.write(bytes, 0, read);
                         }
                         fos.close();
                         filecontent.close();
-                        
+
+                        response.sendRedirect(request.getContextPath() + "/pelicula/gestion");
+                        break;
 
                     } catch (Exception e) {
                         System.err.println("ERROR CAPTURADO EN EL CATCH:");
