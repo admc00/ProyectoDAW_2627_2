@@ -50,6 +50,8 @@
                                 <div class="card">
                                     <img src="${pageContext.request.contextPath}/img/posters/${pelicula.posterUrl}.jpg" class="card-img-top" alt="${pelicula.titulo}">
                                     <div class="card-body">
+                                        
+                                        
                                         <h5 class="card-title">${pelicula.titulo}</h5>
                                         <p class="card-text">${pelicula.descripcion}</p>
                                         <p class="text-muted">Estreno: ${pelicula.fecha_estreno} | Nota: ${pelicula.puntuacionMedia}</p>
@@ -69,9 +71,12 @@
 
                                         </div>
                                         <div class="mb-3">
+                                            <form action="/home/pelicula/eliminar" method="POST">
+                                                  
+                                                <input type="hidden" name="idPelicula" value="${pelicula.id}">
 
-
-                                            <button id="botonEliminar" class="btn btn-danger" > Eliminar </button>
+                                                <button type="submit" class="btn btn-danger">Eliminar</button>
+                                            </form>
 
                                         </div>
 
@@ -176,9 +181,9 @@
                     <div class="modal-body">
                         <form id="formEditarPelicula" action="/home/pelicula/editar" method="POST" enctype="multipart/form-data">
 
-                            
+
                             <input type="hidden" id="edit-id" name="id">
-                            
+
                             <div class="d-flex align-items-center mb-3">
 
                                 <label style="width: 100px" for="edit-titulo">Título:</label>

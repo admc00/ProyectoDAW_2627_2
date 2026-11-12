@@ -4,6 +4,7 @@
  */
 package daw.model;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -23,6 +24,7 @@ import java.util.List;
 @Table(name = "pelicula")
 @NamedQueries({
     @NamedQuery(name = "Peliculas.findAll", query = "SELECT p From Pelicula p"),
+    @NamedQuery(name = "Peliculas.findByID", query = "SELECT p From Pelicula p Where p.id =:id ")
 })
 public class Pelicula implements Serializable {
 
@@ -109,7 +111,7 @@ public class Pelicula implements Serializable {
     
     //Relaciones
     
-    @OneToMany(mappedBy = "pelicula")
+    @OneToMany(mappedBy = "pelicula",cascade = CascadeType.ALL)
     private List<Reseña> resena;
 
     
