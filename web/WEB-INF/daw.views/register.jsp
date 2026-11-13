@@ -17,7 +17,7 @@
         
         <h1>Registro Usuario</h1>
 
-    <form id="formulario" action="/home/users/register" method="POST">
+    <form novalidate id="formulario" action="/home/users/register" method="POST">
         <label for="nombre">Nombre:</label>
         <input type="text" id="nombre" name="nombre" required><br/><br/>
 

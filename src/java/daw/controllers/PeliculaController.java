@@ -163,16 +163,13 @@ public class PeliculaController extends HttpServlet {
                         String absolutePathFolder = getServletContext().getRealPath(relativePathFolder);
                         Log.log(Level.INFO, "Path: {0} ", absolutePathFolder);
 
-                        File folder = new File(absolutePathFolder);
-                        if (!folder.exists()) {
-                            folder.mkdirs();
-                        }
-
+                      
                         String tituloLimpio = titulo.trim().toLowerCase()
                                 .replaceAll("[^a-z0-9]", "-");
 
                         String filename = "poster-" + tituloLimpio;
                         String posterUrl = filename;
+                        
 
                         Pelicula p = new Pelicula();
                         p.setTitulo(titulo);
@@ -242,10 +239,6 @@ public class PeliculaController extends HttpServlet {
                                     String relativePathFolder = "" + File.separator + "img" + File.separator + "posters";
                                     String absolutePathFolder = getServletContext().getRealPath(relativePathFolder);
 
-                                    File folder = new File(absolutePathFolder);
-                                    if (!folder.exists()) {
-                                        folder.mkdirs();
-                                    }
 
                                     String tituloLimpio = tituloEdit.trim().toLowerCase()
                                             .replaceAll("[^a-z0-9]", "-");
