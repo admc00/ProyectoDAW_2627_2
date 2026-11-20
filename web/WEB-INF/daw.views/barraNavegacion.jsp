@@ -21,13 +21,13 @@
 
 
 
-                    <c:if test="${usuarioLogueado.email eq 'admc0000@gmail.com'}">
+                    <c:if test="${usuarioLogueado.rol eq 'Admin'}">
 
                         <a class="text-decoration-none" style="color: #00ff00" href="/home/pelicula/gestion">Gestionar Peliculas</a>
 
                         </c:if>
 
-                        <c:if test="${usuarioLogueado.email ne 'admc0000@gmail.com'}">
+                        <c:if test="${usuarioLogueado.rol eq 'Usuario'}">
 
                             <a class="text-decoration-none" style="color: #00ff00" href="/home/users/perfil">
                                 Mi Perfil

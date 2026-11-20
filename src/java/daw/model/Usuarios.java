@@ -4,6 +4,7 @@
  */
 package daw.model;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -41,10 +42,11 @@ public class Usuarios implements Serializable {
         this.Bibliografía = Bibliografía;
     }
 
-    public Usuarios(String nombre, String email, String contraseña) {
+    public Usuarios(String nombre, String email, String contraseña, String rol) {
         this.nombre = nombre;
         this.email = email;
         this.contraseña = contraseña;
+        this.rol = rol;
 
     }
 
@@ -56,6 +58,7 @@ public class Usuarios implements Serializable {
     private String contraseña;
     private String perfilUrl;
     private String Bibliografía;
+    private String rol;
 
     public String getNombre() {
         return nombre;
@@ -96,6 +99,14 @@ public class Usuarios implements Serializable {
     public void setBibliografía(String Bibliografía) {
         this.Bibliografía = Bibliografía;
     }
+    
+    public String getRol() {
+        return rol;
+    }
+
+    public void setRol(String Rol) {
+        this.rol = Rol;
+    }
 
     public Long getId() {
         return id;
@@ -125,10 +136,10 @@ public class Usuarios implements Serializable {
     
     //Relaciones
     
-    @OneToMany(mappedBy = "usuarios")
+    @OneToMany(mappedBy = "usuarios",cascade = CascadeType.ALL)
     private List<Reseña> resenas;
     
-    @OneToMany(mappedBy = "usuarios")
+    @OneToMany(mappedBy = "usuarios",cascade = CascadeType.ALL)
     private List<Comentario> comentarios;
 
     @Override

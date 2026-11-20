@@ -21,8 +21,12 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.UserTransaction;
+import java.io.PrintWriter;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  *
@@ -76,7 +80,7 @@ public class UsuariosController extends HttpServlet {
 
             case "/logout":
                 HttpSession sesion = request.getSession();
-                
+
                 if (sesion != null) {
                     sesion.invalidate();
 
@@ -117,6 +121,10 @@ public class UsuariosController extends HttpServlet {
 
                     case "/register":
                         crearusuario(request, response);
+                        break;
+
+                    case "/comprobarEmail":
+                        comprobarEmail(request, response);
                         break;
                 }
             } catch (Exception e) {
@@ -199,7 +207,7 @@ public class UsuariosController extends HttpServlet {
                 throw new EntityExistsException("Ya existe el correo electrónico.");
             }
 
-            Usuarios nuevoUsuario = new Usuarios(name, email, hashPassword(contraseña));
+            Usuarios nuevoUsuario = new Usuarios(name, email, hashPassword(contraseña), "Usuario");
 
             save(nuevoUsuario);
 
@@ -250,6 +258,37 @@ public class UsuariosController extends HttpServlet {
     private String hashPassword(String password) {
 
         return BCrypt.hashpw(password, BCrypt.gensalt(12));
+
+    }
+
+    private void comprobarEmail(HttpServletRequest request, HttpServletResponse response) throws IOException {
+
+        String email = request.getParameter("email");
+        String respuesta;
+        String regex = "^[-\\w.%+]{1,64}@(?:[a-zA-Z0-9-]{1,63}\\.){1,125}[a-zA-Z]{2,63}$";
+
+        Pattern pat = Pattern.compile(regex);
+        Matcher mat = pat.matcher(email);
+
+
+        if (!mat.matches()) {
+            respuesta = "Email no válido";
+        } else {
+            TypedQuery<Usuarios> q = em.createNamedQuery("Usuarios.findByEmail", Usuarios.class);
+            q.setParameter("email", email);
+            List<Usuarios> lu = q.getResultList();
+
+            if (!lu.isEmpty()) {
+                respuesta = "Email no válido";
+            } else {
+                respuesta = "Ok";
+            }
+        }
+
+        response.setContentType("text/html;charset=UTF-8");
+        try (PrintWriter out = response.getWriter()) {
+            out.println(respuesta);
+        }
 
     }
 

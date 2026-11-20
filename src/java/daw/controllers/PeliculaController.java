@@ -88,18 +88,24 @@ public class PeliculaController extends HttpServlet {
 
                     if (usuario != null) {
 
-                        if (usuario.getEmail().equals("admc0000@gmail.com")) {
+                        if (usuario.getRol().equals("Admin")) {
 
                             TypedQuery<Pelicula> query = em.createNamedQuery("Peliculas.findAll", Pelicula.class);
                             List<Pelicula> listaPeliculas = query.getResultList();
 
                             request.setAttribute("peliculas", listaPeliculas);
                             vista = "gestionPeliculas";
+                        } else {
+                            
+                            sesion.setAttribute("mensajeError", "No tienes permiso de administrador.");
+                            response.sendRedirect(request.getContextPath());
+                            return;
                         }
 
                     } else {
 
                         vista = "home";
+
                     }
 
                 } else {
@@ -132,188 +138,218 @@ public class PeliculaController extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        String accion = "/pelicula";
+        HttpSession sesion = request.getSession(false);
 
-        if (request.getServletPath().equals(accion)) {
-            if (request.getPathInfo() != null) {
-                accion = request.getPathInfo();
+        if (sesion != null) {
+
+            Usuarios admin = (Usuarios) sesion.getAttribute("usuarioLogueado");
+
+            String accion = "/pelicula";
+
+            if (request.getServletPath().equals(accion)) {
+                if (request.getPathInfo() != null) {
+                    accion = request.getPathInfo();
+                }
             }
-        }
 
-        if (accion != null) {
+            if (accion != null) {
 
-            switch (accion) {
+                switch (accion) {
 
-                case "/anadir":
+                    case "/anadir":
 
-                    String titulo = request.getParameter("titulo");
-                    String descripcion = request.getParameter("descripcion");
-                    String fecha = request.getParameter("fecha");
-                    String puntuacion = request.getParameter("puntuacionMedia");
-                    final Part posterPart = request.getPart("poster");
+                        if (admin != null && admin.getRol().equals("Admin")) {
 
-                    try {
+                            String titulo = request.getParameter("titulo");
+                            String descripcion = request.getParameter("descripcion");
+                            String fecha = request.getParameter("fecha");
+                            String puntuacion = request.getParameter("puntuacionMedia");
+                            final Part posterPart = request.getPart("poster");
 
-                        if (titulo == null || descripcion == null || fecha == null || puntuacion == null || posterPart == null) {
-                            throw new IllegalArgumentException("Datos no válidos");
-                        }
+                            try {
 
-                        String relativePathFolder = "" + File.separator + "img" + File.separator + "posters";
-                        Log.log(Level.INFO, "webPath: {0} ", relativePathFolder);
-                        String absolutePathFolder = getServletContext().getRealPath(relativePathFolder);
-                        Log.log(Level.INFO, "Path: {0} ", absolutePathFolder);
-
-                      
-                        String tituloLimpio = titulo.trim().toLowerCase()
-                                .replaceAll("[^a-z0-9]", "-");
-
-                        String filename = "poster-" + tituloLimpio;
-                        String posterUrl = filename;
-                        
-
-                        Pelicula p = new Pelicula();
-                        p.setTitulo(titulo);
-                        p.setFecha_estreno(fecha);
-                        p.setDescripcion(descripcion);
-                        p.setPuntuacionMedia(parseFloat(puntuacion));
-                        p.setPosterUrl(posterUrl);
-
-                        utx.begin();
-                        em.persist(p);
-                        utx.commit();
-
-                        File f = new File(absolutePathFolder + File.separator + filename + ".jpg");
-                        OutputStream fos = new FileOutputStream(f);
-                        InputStream filecontent = posterPart.getInputStream();
-                        int read = 0;
-                        final byte[] bytes = new byte[1024];
-                        while ((read = filecontent.read(bytes)) != -1) {
-                            fos.write(bytes, 0, read);
-                        }
-                        fos.close();
-                        filecontent.close();
-
-                        response.sendRedirect(request.getContextPath() + "/pelicula/gestion");
-
-                    } catch (Exception e) {
-                        System.err.println("ERROR CAPTURADO EN EL CATCH:");
-                        e.printStackTrace();
-
-                        request.setAttribute("error", e.getMessage());
-
-                    }
-
-                    break;
-
-                case "/editar":
-
-                    try {
-
-                        Long id = Long.parseLong(request.getParameter("id"));
-                        String tituloEdit = request.getParameter("titulo");
-                        String descripcionEdit = request.getParameter("descripcion");
-                        String fechaEdit = request.getParameter("fecha");
-                        String puntuacionEdit = request.getParameter("puntuacionMedia");
-                        final Part posterPartEdit = request.getPart("poster");
-
-                        if (tituloEdit == null || descripcionEdit == null || fechaEdit == null || puntuacionEdit == null) {
-                            throw new IllegalArgumentException("Datos no válidos");
-                        }
-
-                        utx.begin();
-
-                        TypedQuery<Pelicula> queryPelicula = em.createNamedQuery("Peliculas.findByID", Pelicula.class);
-                        queryPelicula.setParameter("id", id);
-
-                        if (id == queryPelicula.getSingleResult().getId()) {
-                            Pelicula p = queryPelicula.getSingleResult();
-
-                            if (p != null) {
-
-                                p.setTitulo(tituloEdit);
-                                p.setDescripcion(descripcionEdit);
-                                p.setFecha_estreno(fechaEdit);
-                                p.setPuntuacionMedia(Float.parseFloat(puntuacionEdit));
-
-                                if (posterPartEdit != null) {
-                                    String relativePathFolder = "" + File.separator + "img" + File.separator + "posters";
-                                    String absolutePathFolder = getServletContext().getRealPath(relativePathFolder);
-
-
-                                    String tituloLimpio = tituloEdit.trim().toLowerCase()
-                                            .replaceAll("[^a-z0-9]", "-");
-
-                                    String filename = "poster-" + tituloLimpio;
-                                    String posterUrl = filename;
-
-                                    p.setPosterUrl(posterUrl);
-
-                                    File f = new File(absolutePathFolder + File.separator + filename + ".jpg");
-                                    OutputStream fos = new FileOutputStream(f);
-                                    InputStream filecontent = posterPartEdit.getInputStream();
-                                    int read = 0;
-                                    final byte[] bytes = new byte[1024];
-                                    while ((read = filecontent.read(bytes)) != -1) {
-                                        fos.write(bytes, 0, read);
-                                    }
-                                    fos.close();
-                                    filecontent.close();
+                                if (titulo == null || descripcion == null || fecha == null || puntuacion == null || posterPart == null) {
+                                    throw new IllegalArgumentException("Datos no válidos");
                                 }
 
-                                em.merge(p);
+                                String relativePathFolder = "" + File.separator + "img" + File.separator + "posters";
+                                Log.log(Level.INFO, "webPath: {0} ", relativePathFolder);
+                                String absolutePathFolder = getServletContext().getRealPath(relativePathFolder);
+                                Log.log(Level.INFO, "Path: {0} ", absolutePathFolder);
+
+                                String tituloLimpio = titulo.trim().toLowerCase()
+                                        .replaceAll("[^a-z0-9]", "-");
+
+                                String filename = "poster-" + tituloLimpio;
+                                String posterUrl = filename;
+
+                                Pelicula p = new Pelicula();
+                                p.setTitulo(titulo);
+                                p.setFecha_estreno(fecha);
+                                p.setDescripcion(descripcion);
+                                p.setPuntuacionMedia(parseFloat(puntuacion));
+                                p.setPosterUrl(posterUrl);
+
+                                utx.begin();
+                                em.persist(p);
+                                utx.commit();
+
+                                File f = new File(absolutePathFolder + File.separator + filename + ".jpg");
+                                OutputStream fos = new FileOutputStream(f);
+                                InputStream filecontent = posterPart.getInputStream();
+                                int read = 0;
+                                final byte[] bytes = new byte[1024];
+                                while ((read = filecontent.read(bytes)) != -1) {
+                                    fos.write(bytes, 0, read);
+                                }
+                                fos.close();
+                                filecontent.close();
+
+                                response.sendRedirect(request.getContextPath() + "/pelicula/gestion");
+
+                            } catch (Exception e) {
+                                System.err.println("ERROR CAPTURADO EN EL CATCH:");
+                                e.printStackTrace();
+
+                                request.setAttribute("error", e.getMessage());
 
                             }
 
-                            utx.commit();
-                            response.sendRedirect(request.getContextPath() + "/pelicula/gestion");
-
+                        } else {
+                            sesion.setAttribute("mensajeError", "No tienes permisos de administrador para realizar esta acción.");
+                            response.sendRedirect(request.getContextPath());
                         }
 
-                    } catch (Exception e) {
+                        break;
 
-                        System.err.println("ERROR CAPTURADO EN EDITAR:");
-                        e.printStackTrace();
-                        request.setAttribute("error", e.getMessage());
-                    }
+                    case "/editar":
 
-                    break;
+                        if (admin != null && admin.getRol().equals("Admin")) {
 
-                case "/eliminar":
+                            try {
 
-                    try {
+                                Long id = Long.parseLong(request.getParameter("id"));
+                                String tituloEdit = request.getParameter("titulo");
+                                String descripcionEdit = request.getParameter("descripcion");
+                                String fechaEdit = request.getParameter("fecha");
+                                String puntuacionEdit = request.getParameter("puntuacionMedia");
+                                final Part posterPartEdit = request.getPart("poster");
 
-                        Long id = Long.parseLong(request.getParameter("idPelicula"));
+                                if (tituloEdit == null || descripcionEdit == null || fechaEdit == null || puntuacionEdit == null) {
+                                    throw new IllegalArgumentException("Datos no válidos");
+                                }
 
-                        utx.begin();
-                        TypedQuery<Pelicula> queryPelicula = em.createNamedQuery("Peliculas.findByID", Pelicula.class);
-                        queryPelicula.setParameter("id", id);
+                                utx.begin();
 
-                        if (id == queryPelicula.getSingleResult().getId()) {
-                            Pelicula p = queryPelicula.getSingleResult();
+                                TypedQuery<Pelicula> queryPelicula = em.createNamedQuery("Peliculas.findByID", Pelicula.class);
+                                queryPelicula.setParameter("id", id);
 
-                            if (p != null) {
-                                em.remove(p);
+                                if (id == queryPelicula.getSingleResult().getId()) {
+                                    Pelicula p = queryPelicula.getSingleResult();
+
+                                    if (p != null) {
+
+                                        p.setTitulo(tituloEdit);
+                                        p.setDescripcion(descripcionEdit);
+                                        p.setFecha_estreno(fechaEdit);
+                                        p.setPuntuacionMedia(Float.parseFloat(puntuacionEdit));
+
+                                        if (posterPartEdit != null) {
+                                            String relativePathFolder = "" + File.separator + "img" + File.separator + "posters";
+                                            String absolutePathFolder = getServletContext().getRealPath(relativePathFolder);
+
+                                            String tituloLimpio = tituloEdit.trim().toLowerCase()
+                                                    .replaceAll("[^a-z0-9]", "-");
+
+                                            String filename = "poster-" + tituloLimpio;
+                                            String posterUrl = filename;
+
+                                            p.setPosterUrl(posterUrl);
+
+                                            File f = new File(absolutePathFolder + File.separator + filename + ".jpg");
+                                            OutputStream fos = new FileOutputStream(f);
+                                            InputStream filecontent = posterPartEdit.getInputStream();
+                                            int read = 0;
+                                            final byte[] bytes = new byte[1024];
+                                            while ((read = filecontent.read(bytes)) != -1) {
+                                                fos.write(bytes, 0, read);
+                                            }
+                                            fos.close();
+                                            filecontent.close();
+                                        }
+
+                                        em.merge(p);
+
+                                    }
+
+                                    utx.commit();
+                                    response.sendRedirect(request.getContextPath() + "/pelicula/gestion");
+
+                                }
+
+                            } catch (Exception e) {
+
+                                System.err.println("ERROR CAPTURADO EN EDITAR:");
+                                e.printStackTrace();
+                                request.setAttribute("error", e.getMessage());
                             }
 
-                            utx.commit();
-
-                            response.sendRedirect(request.getContextPath() + "/pelicula/gestion");
+                        } else {
+                            sesion.setAttribute("mensajeError", "No tienes permisos de administrador para realizar esta acción.");
+                            response.sendRedirect(request.getContextPath());
                         }
 
-                    } catch (Exception e) {
-                        System.err.println("ERROR CAPTURADO EN EL CATCH:");
-                        e.printStackTrace();
+                        break;
 
-                        request.setAttribute("error", e.getMessage());
-                    }
+                    case "/eliminar":
 
-                    break;
+                        if (admin != null && admin.getRol().equals("Admin")) {
+                            try {
 
+                                Long id = Long.parseLong(request.getParameter("idPelicula"));
+
+                                utx.begin();
+                                TypedQuery<Pelicula> queryPelicula = em.createNamedQuery("Peliculas.findByID", Pelicula.class);
+                                queryPelicula.setParameter("id", id);
+
+                                if (id == queryPelicula.getSingleResult().getId()) {
+                                    Pelicula p = queryPelicula.getSingleResult();
+
+                                    if (p != null) {
+                                        em.remove(p);
+                                    }
+
+                                    utx.commit();
+
+                                    response.sendRedirect(request.getContextPath() + "/pelicula/gestion");
+                                }
+
+                            } catch (Exception e) {
+                                System.err.println("ERROR CAPTURADO EN EL CATCH:");
+                                e.printStackTrace();
+
+                                request.setAttribute("error", e.getMessage());
+                            }
+
+                        } else {
+                            sesion.setAttribute("mensajeError", "No tienes permisos de administrador para realizar esta acción.");
+                            response.sendRedirect(request.getContextPath());
+                        }
+
+                        break;
+
+                }
+            } else {
+
+                RequestDispatcher rd = request.getRequestDispatcher("/WEB-INF/daw.views/error.jsp");
+                rd.forward(request, response);
             }
+
         } else {
 
             RequestDispatcher rd = request.getRequestDispatcher("/WEB-INF/daw.views/error.jsp");
             rd.forward(request, response);
+
         }
 
     }
