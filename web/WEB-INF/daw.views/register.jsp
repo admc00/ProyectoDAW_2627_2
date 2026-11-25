@@ -7,6 +7,7 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <title>JSP Page</title>
@@ -21,7 +22,7 @@
             <div class="row justify-content-center align-items-center">
 
                 <div class="col-md-5 mb-4 text-md-start">
-                    
+
                     <p class="lead text-secondary">Tu espacio personal para opinar, debatir y descubrir el mejor cine con otros usuarios.</p>
                     <ul class=" text-muted d-md-block">
                         <li class="mb-2">Crea reseñas personalizadas.</li>
@@ -50,8 +51,9 @@
                                 <div class="mb-3">
                                     <label for="email">Email:</label>
                                     <input type="email" id="email" name="email" class="form-control" >
-                                    <span id="error-email" style="color: red"></span>
-                                    <div id="emailInUse"></div>
+                                    <div id="emailInUse">
+                                        <span id="error-email" style="color: red"></span>
+                                    </div>
                                 </div>
 
 
@@ -84,10 +86,10 @@
         <div class="container mt-5">
 
             <div class=" d-flex justify-content-center">
-                
-                 <a href="/home/"  class="btn btn-primary btn-center me-3">Volver a inicio</a>
-                 <a href="/home/users/login"  class="btn btn-primary btn-center me-3">¿Tienes ya cuenta?</a>
-                 
+
+                <a href="/home/"  class="btn btn-primary btn-center me-3">Volver a inicio</a>
+                <a href="/home/users/login"  class="btn btn-primary btn-center me-3">¿Tienes ya cuenta?</a>
+
             </div>
 
 

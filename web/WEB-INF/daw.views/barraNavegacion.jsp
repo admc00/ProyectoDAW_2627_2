@@ -7,8 +7,7 @@
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
-<html>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
     <nav class="navbar py-3" style="background-color: #000066">
         <div  class ="container-fluid d-flex justify-content-between align-items-center">
 
@@ -48,4 +47,4 @@
 
         </div>
     </nav>
-</html>
+

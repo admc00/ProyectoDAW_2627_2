@@ -7,7 +7,7 @@ let f = document.getElementById("formulario");
 
 
 if (f) {
-    f.addEventListener("submit", checkData);
+    f.addEventListener("change", checkData);
 }
 
 const myModal = document.getElementById('myModal');
@@ -75,6 +75,9 @@ function checkData(evt) {
     let con1 = document.getElementById("contrasena");
     let con2 = document.getElementById("contrasena2");
     let nombre = document.getElementById("nombre");
+    let email = document.getElementById("email");
+    
+    let regex = /^[-\\w.%+]{1,64}@(?:[a-zA-Z0-9-]{1,63}\\.){1,125}[a-zA-Z]{2,63}i/;
    
 
     if (nombre.value == null || nombre.value == "" || nombre.value.length == 0 || nombre.value.length <= 3) {
@@ -83,6 +86,13 @@ function checkData(evt) {
     } else {
         esValido("error-usuario");
 
+    }
+    
+    if(!regex.test("email")){
+        mostrarError("error-email", "El email no es correcto.");
+        ok = false;
+    }else {
+        esValido("error-email");
     }
 
     if (con1.value.length < 4) {

@@ -265,24 +265,15 @@ public class UsuariosController extends HttpServlet {
 
         String email = request.getParameter("email");
         String respuesta;
-        String regex = "^[-\\w.%+]{1,64}@(?:[a-zA-Z0-9-]{1,63}\\.){1,125}[a-zA-Z]{2,63}$";
 
-        Pattern pat = Pattern.compile(regex);
-        Matcher mat = pat.matcher(email);
+        TypedQuery<Usuarios> q = em.createNamedQuery("Usuarios.findByEmail", Usuarios.class);
+        q.setParameter("email", email);
+        List<Usuarios> lu = q.getResultList();
 
-
-        if (!mat.matches()) {
+        if (!lu.isEmpty()) {
             respuesta = "Email no válido";
         } else {
-            TypedQuery<Usuarios> q = em.createNamedQuery("Usuarios.findByEmail", Usuarios.class);
-            q.setParameter("email", email);
-            List<Usuarios> lu = q.getResultList();
-
-            if (!lu.isEmpty()) {
-                respuesta = "Email no válido";
-            } else {
-                respuesta = "Ok";
-            }
+            respuesta = "Ok";
         }
 
         response.setContentType("text/html;charset=UTF-8");
