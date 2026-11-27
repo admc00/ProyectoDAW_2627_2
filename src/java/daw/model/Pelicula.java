@@ -24,7 +24,9 @@ import java.util.List;
 @Table(name = "pelicula")
 @NamedQueries({
     @NamedQuery(name = "Peliculas.findAll", query = "SELECT p From Pelicula p"),
-    @NamedQuery(name = "Peliculas.findByID", query = "SELECT p From Pelicula p Where p.id =:id ")
+    @NamedQuery(name = "Peliculas.findByID", query = "SELECT p From Pelicula p Where p.id =:id "),
+    @NamedQuery(name = "Peliculas.findByTituloNormalizado", query = "SELECT p FROM Pelicula p WHERE p.tituloNormalizado = :tituloNormalizado")
+        
 })
 public class Pelicula implements Serializable {
 
@@ -34,6 +36,7 @@ public class Pelicula implements Serializable {
     private Long id;
     
     String titulo;
+    String tituloNormalizado;
     String descripcion;
     String fecha_estreno;
     String posterUrl;
@@ -59,6 +62,14 @@ public class Pelicula implements Serializable {
         this.titulo = titulo;
     }
 
+    public String getTituloNormalizado() {
+        return tituloNormalizado;
+    }
+
+    public void setTituloNormalizado(String tituloNormalizado) {
+        this.tituloNormalizado = tituloNormalizado;
+    }
+    
     public String getDescripcion() {
         return descripcion;
     }

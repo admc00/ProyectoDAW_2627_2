@@ -4,6 +4,7 @@
  */
 package daw.controllers;
 
+import daw.model.Pelicula;
 import jakarta.annotation.Resource;
 import jakarta.persistence.EntityManager;
 import jakarta.servlet.RequestDispatcher;
@@ -17,7 +18,10 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.TypedQuery;
+import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.UserTransaction;
+import java.util.List;
 
 /**
  *
@@ -25,7 +29,7 @@ import jakarta.transaction.UserTransaction;
  */
 @WebServlet(name = "HomeController", urlPatterns = {""})
 public class HomeController extends HttpServlet {
-    
+
     @PersistenceContext(unitName = "ProyectoDAW_2627PU")
     private EntityManager em;
     @Resource
@@ -43,8 +47,15 @@ public class HomeController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
+
         String vista = "/WEB-INF/daw.views/home.jsp";
+
+        TypedQuery<Pelicula> querylistaPelicula = em.createNamedQuery("Peliculas.findAll", Pelicula.class);
+        List<Pelicula> listaPeliculas = querylistaPelicula.getResultList();
+
+        HttpSession sesion = request.getSession();
+        sesion.setAttribute("peliculas", listaPeliculas);
+
         RequestDispatcher dispatcher = request.getRequestDispatcher(vista);
         dispatcher.forward(request, response);
     }
@@ -60,7 +71,7 @@ public class HomeController extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-       
+
     }
 
     /**

@@ -10,6 +10,8 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.NamedQueries;
+import jakarta.persistence.NamedQuery;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.io.Serializable;
@@ -21,6 +23,11 @@ import java.util.List;
  */
 @Entity
 @Table(name = "reseña")
+@NamedQueries({
+    @NamedQuery(name = "Resena.findByPeliculaId", query = "SELECT r FROM Reseña r WHERE r.pelicula.id = :idPelicula ORDER BY r.id DESC"),
+    @NamedQuery(name = "Resena.findById", query = "SELECT r FROM Reseña r WHERE r.id = :id"),
+    @NamedQuery(name = "Resena.findByUsuarioId", query = "SELECT r FROM Reseña r WHERE r.usuarios.id = :idUsuario")
+})
 public class Reseña implements Serializable {
 
     private static final long serialVersionUID = 1L;

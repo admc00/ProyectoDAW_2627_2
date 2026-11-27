@@ -5,6 +5,7 @@
 package daw.controllers;
 
 import daw.model.Pelicula;
+import daw.model.Reseña;
 import daw.model.Usuarios;
 import jakarta.annotation.Resource;
 import jakarta.persistence.EntityManager;
@@ -26,6 +27,8 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import static java.lang.Float.parseFloat;
+import java.text.Normalizer;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 import java.util.logging.Level;
@@ -53,7 +56,6 @@ public class PeliculaController extends HttpServlet {
      * @throws ServletException if a servlet-specific error occurs
      * @throws IOException if an I/O error occurs
      */
-    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**
      * Handles the HTTP <code>GET</code> method.
      *
@@ -96,7 +98,7 @@ public class PeliculaController extends HttpServlet {
                             request.setAttribute("peliculas", listaPeliculas);
                             vista = "gestionPeliculas";
                         } else {
-                            
+
                             sesion.setAttribute("mensajeError", "No tienes permiso de administrador.");
                             response.sendRedirect(request.getContextPath());
                             return;
@@ -104,7 +106,9 @@ public class PeliculaController extends HttpServlet {
 
                     } else {
 
-                        vista = "home";
+                        sesion.setAttribute("mensajeError", "No tienes permiso de administrador.");
+                        response.sendRedirect(request.getContextPath());
+                        return;
 
                     }
 
@@ -114,11 +118,50 @@ public class PeliculaController extends HttpServlet {
                 }
                 break;
 
-            case "/buscar":
-
             case "/detalles":
+                String idParam = request.getParameter("id");
 
-            case "/guardar":
+                if (idParam == null || idParam.trim().isEmpty()) {
+                    response.sendRedirect(request.getContextPath());
+                    return;
+                }
+
+                try {
+                    Long idPelicula = Long.parseLong(idParam.trim());
+
+                    TypedQuery<Pelicula> queryDetalles = em.createNamedQuery("Peliculas.findByID", Pelicula.class);
+                    queryDetalles.setParameter("id", idPelicula);
+                    List<Pelicula> resultados = queryDetalles.getResultList();
+
+                    if (resultados.isEmpty()) {
+                        request.getSession().setAttribute("mensajeError", "La película solicitada no existe.");
+                        response.sendRedirect(request.getContextPath());
+                        return;
+                    }
+
+                    TypedQuery<Reseña> queryResenas = em.createNamedQuery("Resena.findByPeliculaId", Reseña.class);
+                    queryResenas.setParameter("idPelicula", idPelicula);
+                    List<Reseña> listaReseñas = queryResenas.getResultList();
+                    request.setAttribute("resenas", listaReseñas);
+
+                    request.setAttribute("pelicula", resultados.get(0));
+                    vista = "detalles";
+
+                } catch (NumberFormatException e) {
+                    response.sendRedirect(request.getContextPath());
+                    return;
+                }
+                break;
+
+            default:
+                if ("/anadir".equals(accion) || "/editar".equals(accion) || "/eliminar".equals(accion)) {
+                    HttpSession sesionDefault = request.getSession();
+                    sesionDefault.setAttribute("mensajeError", "No tienes permiso de administrador.");
+                    response.sendRedirect(request.getContextPath());
+                    return;
+                }
+                response.sendRedirect(request.getContextPath());
+                return;
 
         }
 
@@ -138,7 +181,10 @@ public class PeliculaController extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        HttpSession sesion = request.getSession(false);
+        request.setCharacterEncoding("UTF-8");
+        response.setCharacterEncoding("UTF-8");
+
+        HttpSession sesion = request.getSession();
 
         if (sesion != null) {
 
@@ -166,25 +212,40 @@ public class PeliculaController extends HttpServlet {
                             String puntuacion = request.getParameter("puntuacionMedia");
                             final Part posterPart = request.getPart("poster");
 
-                            try {
+                            if (titulo == null || titulo.trim().isEmpty() || descripcion == null || fecha == null || puntuacion == null || posterPart == null) {
+                                sesion.setAttribute("mensajeError", "Datos no válidos.");
+                                response.sendRedirect(request.getContextPath() + "/pelicula/gestion");
+                                return;
+                            }
 
-                                if (titulo == null || descripcion == null || fecha == null || puntuacion == null || posterPart == null) {
-                                    throw new IllegalArgumentException("Datos no válidos");
-                                }
+                            String tituloNormalizado = Normalizer.normalize(titulo, Normalizer.Form.NFD);
+                            tituloNormalizado.replaceAll("[\\p{InCombiningDiacriticalMarks}]", "");
+
+                            tituloNormalizado = tituloNormalizado.trim().toLowerCase().replaceAll("[^a-z0-9]", "");
+
+                            TypedQuery<Pelicula> queryAnadir = em.createNamedQuery("Peliculas.findByTituloNormalizado", Pelicula.class);
+                            queryAnadir.setParameter("tituloNormalizado", tituloNormalizado);
+                            List<Pelicula> listaPeliculas = queryAnadir.getResultList();
+
+                            if (!listaPeliculas.isEmpty()) {
+                                sesion.setAttribute("mensajeError", "Ya existe una película con ese título.");
+                                response.sendRedirect(request.getContextPath() + "/pelicula/gestion");
+                                return;
+                            }
+
+                            try {
 
                                 String relativePathFolder = "" + File.separator + "img" + File.separator + "posters";
                                 Log.log(Level.INFO, "webPath: {0} ", relativePathFolder);
                                 String absolutePathFolder = getServletContext().getRealPath(relativePathFolder);
                                 Log.log(Level.INFO, "Path: {0} ", absolutePathFolder);
 
-                                String tituloLimpio = titulo.trim().toLowerCase()
-                                        .replaceAll("[^a-z0-9]", "-");
-
-                                String filename = "poster-" + tituloLimpio;
+                                String filename = "poster-" + tituloNormalizado;
                                 String posterUrl = filename;
 
                                 Pelicula p = new Pelicula();
                                 p.setTitulo(titulo);
+                                p.setTituloNormalizado(tituloNormalizado);
                                 p.setFecha_estreno(fecha);
                                 p.setDescripcion(descripcion);
                                 p.setPuntuacionMedia(parseFloat(puntuacion));
@@ -208,10 +269,10 @@ public class PeliculaController extends HttpServlet {
                                 response.sendRedirect(request.getContextPath() + "/pelicula/gestion");
 
                             } catch (Exception e) {
-                                System.err.println("ERROR CAPTURADO EN EL CATCH:");
-                                e.printStackTrace();
+                                System.err.println("ERROR CAPTURADO EN EL CATCH:" + e.getMessage());
 
-                                request.setAttribute("error", e.getMessage());
+                                sesion.setAttribute("mensajeError", "No se pudo añadir la película.");
+                                response.sendRedirect(request.getContextPath() + "/pelicula/gestion");
 
                             }
 
@@ -226,42 +287,71 @@ public class PeliculaController extends HttpServlet {
 
                         if (admin != null && admin.getRol().equals("Admin")) {
 
-                            try {
+                            Long id = Long.parseLong(request.getParameter("id"));
+                            String tituloEdit = request.getParameter("titulo");
+                            String descripcionEdit = request.getParameter("descripcion");
+                            String fechaEdit = request.getParameter("fecha");
+                            String puntuacionEdit = request.getParameter("puntuacionMedia");
+                            final Part posterPartEdit = request.getPart("poster");
 
-                                Long id = Long.parseLong(request.getParameter("id"));
-                                String tituloEdit = request.getParameter("titulo");
-                                String descripcionEdit = request.getParameter("descripcion");
-                                String fechaEdit = request.getParameter("fecha");
-                                String puntuacionEdit = request.getParameter("puntuacionMedia");
-                                final Part posterPartEdit = request.getPart("poster");
+                            if (tituloEdit == null || descripcionEdit == null || fechaEdit == null || puntuacionEdit == null) {
+                                sesion.setAttribute("mensajeError", "Datos no válidos.");
+                                response.sendRedirect(request.getContextPath() + "/pelicula/gestion");
+                                return;
+                            }
 
-                                if (tituloEdit == null || descripcionEdit == null || fechaEdit == null || puntuacionEdit == null) {
-                                    throw new IllegalArgumentException("Datos no válidos");
+                            String tituloNormalizado = Normalizer.normalize(tituloEdit, Normalizer.Form.NFD);
+                            tituloNormalizado.replaceAll("[\\p{InCombiningDiacriticalMarks}]", "");
+
+                            tituloNormalizado = tituloNormalizado.trim().toLowerCase().replaceAll("[^a-z0-9]", "");
+
+                            TypedQuery<Pelicula> queryEditar = em.createNamedQuery("Peliculas.findByTituloNormalizado", Pelicula.class);
+                            queryEditar.setParameter("tituloNormalizado", tituloNormalizado);
+                            List<Pelicula> listaPeliculas = queryEditar.getResultList();
+
+                            boolean existe = false;
+                            for (Pelicula peliDuplicada : listaPeliculas) {
+
+                                if (peliDuplicada.getId() != id) {
+                                    existe = true;
+                                    break;
                                 }
+
+                            }
+
+                            if (existe) {
+
+                                sesion.setAttribute("mensajeError", "Ya existe una película con ese título.");
+                                response.sendRedirect(request.getContextPath() + "/pelicula/gestion");
+                                return;
+
+                            }
+
+                            try {
 
                                 utx.begin();
 
                                 TypedQuery<Pelicula> queryPelicula = em.createNamedQuery("Peliculas.findByID", Pelicula.class);
                                 queryPelicula.setParameter("id", id);
 
-                                if (id == queryPelicula.getSingleResult().getId()) {
-                                    Pelicula p = queryPelicula.getSingleResult();
+                                Pelicula resultado = queryPelicula.getSingleResult();
+
+                                if (id == resultado.getId()) {
+                                    Pelicula p = resultado;
 
                                     if (p != null) {
 
                                         p.setTitulo(tituloEdit);
+                                        p.setTituloNormalizado(tituloNormalizado);
                                         p.setDescripcion(descripcionEdit);
                                         p.setFecha_estreno(fechaEdit);
                                         p.setPuntuacionMedia(Float.parseFloat(puntuacionEdit));
 
-                                        if (posterPartEdit != null) {
+                                        if (posterPartEdit != null && posterPartEdit.getSize() > 0) {
                                             String relativePathFolder = "" + File.separator + "img" + File.separator + "posters";
                                             String absolutePathFolder = getServletContext().getRealPath(relativePathFolder);
 
-                                            String tituloLimpio = tituloEdit.trim().toLowerCase()
-                                                    .replaceAll("[^a-z0-9]", "-");
-
-                                            String filename = "poster-" + tituloLimpio;
+                                            String filename = "poster-" + tituloNormalizado;
                                             String posterUrl = filename;
 
                                             p.setPosterUrl(posterUrl);
@@ -289,9 +379,10 @@ public class PeliculaController extends HttpServlet {
 
                             } catch (Exception e) {
 
-                                System.err.println("ERROR CAPTURADO EN EDITAR:");
-                                e.printStackTrace();
-                                request.setAttribute("error", e.getMessage());
+                                System.err.println("ERROR CAPTURADO EN EL CATCH:" + e.getMessage());
+
+                                sesion.setAttribute("mensajeError", "No se pudo editar la película.");
+                                response.sendRedirect(request.getContextPath() + "/pelicula/gestion");
                             }
 
                         } else {
@@ -312,8 +403,10 @@ public class PeliculaController extends HttpServlet {
                                 TypedQuery<Pelicula> queryPelicula = em.createNamedQuery("Peliculas.findByID", Pelicula.class);
                                 queryPelicula.setParameter("id", id);
 
-                                if (id == queryPelicula.getSingleResult().getId()) {
-                                    Pelicula p = queryPelicula.getSingleResult();
+                                Pelicula resultado = queryPelicula.getSingleResult();
+
+                                if (id == resultado.getId()) {
+                                    Pelicula p = resultado;
 
                                     if (p != null) {
                                         em.remove(p);
@@ -325,10 +418,10 @@ public class PeliculaController extends HttpServlet {
                                 }
 
                             } catch (Exception e) {
-                                System.err.println("ERROR CAPTURADO EN EL CATCH:");
-                                e.printStackTrace();
+                                System.err.println("ERROR CAPTURADO EN EL CATCH:" + e.getMessage());
 
-                                request.setAttribute("error", e.getMessage());
+                                sesion.setAttribute("mensajeError", "No se pudo eliminar la película.");
+                                response.sendRedirect(request.getContextPath() + "/pelicula/gestion");
                             }
 
                         } else {
@@ -336,6 +429,80 @@ public class PeliculaController extends HttpServlet {
                             response.sendRedirect(request.getContextPath());
                         }
 
+                        break;
+
+                    case "/anadirCesta":
+
+                        String idPeliculaAnadir = request.getParameter("idPelicula");
+
+                        if (idPeliculaAnadir != null && !idPeliculaAnadir.isEmpty()) {
+                            try {
+                                Long idPelicula = Long.parseLong(idPeliculaAnadir);
+
+                                TypedQuery<Pelicula> query = em.createNamedQuery("Peliculas.findByID", Pelicula.class);
+                                query.setParameter("id", idPelicula);
+                                Pelicula peliculaAnadir = query.getSingleResult();
+
+                                if (peliculaAnadir != null) {
+                                    List<Pelicula> cesta = (List<Pelicula>) sesion.getAttribute("cesta");
+                                    if (cesta == null) {
+                                        cesta = new ArrayList<>();
+                                    }
+
+                                    boolean yaEsta = false;
+                                    for (int i = 0; i < cesta.size(); i++) {
+                                        if (cesta.get(i).getId().equals(peliculaAnadir.getId())) {
+                                            yaEsta = true;
+                                            break;
+                                        }
+                                    }
+
+                                    if (!yaEsta) {
+                                        cesta.add(peliculaAnadir);
+                                        sesion.setAttribute("mensajeCesta", "Película añadida a ver más tarde.");
+                                    } else {
+                                        sesion.setAttribute("mensajeCesta", "La película ya está en tu cesta.");
+                                    }
+
+                                    sesion.setAttribute("cesta", cesta);
+                                }
+                            } catch (Exception e) {
+                                System.err.println("ERROR CAPTURADO EN EL CATCH:" + e.getMessage());
+                            }
+                        }
+
+                        response.sendRedirect(request.getContextPath() + "/pelicula/detalles?id=" + idPeliculaAnadir);
+                        break;
+
+                    case "/quitarCesta":
+
+                        String idPeliculaQuitar = request.getParameter("idPelicula");
+
+                        if (idPeliculaQuitar != null && !idPeliculaQuitar.isEmpty()) {
+                            try {
+                                Long idPelicula = Long.parseLong(idPeliculaQuitar);
+                                List<Pelicula> cesta = (List<Pelicula>) sesion.getAttribute("cesta");
+
+                                if (cesta != null) {
+                                    for (int i = 0; i < cesta.size(); i++) {
+                                        if (cesta.get(i).getId().equals(idPelicula)) {
+                                            cesta.remove(i);
+                                            break;
+                                        }
+                                    }
+                                    sesion.setAttribute("cesta", cesta);
+                                }
+                            } catch (Exception e) {
+                                System.err.println("ERROR CAPTURADO EN EL CATCH:" + e.getMessage());
+                            }
+                        }
+
+                        String volverAQuitar = request.getParameter("volverA");
+                        if (volverAQuitar != null && !volverAQuitar.isEmpty()) {
+                            response.sendRedirect(volverAQuitar);
+                        } else {
+                            response.sendRedirect(request.getContextPath());
+                        }
                         break;
 
                 }

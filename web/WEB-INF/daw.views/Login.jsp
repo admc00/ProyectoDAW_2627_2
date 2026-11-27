@@ -7,9 +7,8 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-
     <head>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <title>JSP Page</title>
     </head>
@@ -40,16 +39,16 @@
                             <form novalidate id="formularioInicio"  action="/home/users/login" method="POST">
 
                                 <div class="mb-3">
-                                    <label for="email">Email:</label>
-                                    <input type="email" id="email" name="email" class="form-control" >
-                                    <span id="error-email " style="color: red"></span>
+                                    <label for="emailLogin">Email:</label>
+                                    <input type="email" id="emailLogin" name="emailLogin" class="form-control" >
+                                    <span id="error-emailLogin" style="color: red"></span>
                                 </div>
 
 
                                 <div class="mb-3">
-                                    <label for="contrasena">Contraseña:</label>
-                                    <input type="password" id="contrasena" name="contrasena" class="form-control" >
-                                    <span id="error-contraseña" style="color: red"></span>
+                                    <label for="contrasenaLogin">Contraseña:</label>
+                                    <input type="password" id="contrasenaLogin" name="contrasenaLogin" class="form-control" >
+                                    <span id="error-contraseñaLogin" style="color: red"></span>
                                 </div>
 
 
@@ -74,11 +73,8 @@
                 <a href="/home/users/register"  class="btn btn-primary btn-center me-3">¿No tienes cuenta?</a>
 
             </div>
-
-
-
         </div>
-
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
         <script src="${pageContext.request.contextPath}/functions/functions.js"></script>
     </body>
 </html>

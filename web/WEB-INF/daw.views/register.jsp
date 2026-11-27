@@ -1,5 +1,5 @@
 <%-- 
-    Document   : Login
+    Document   : Register
     Created on : 9 oct 2026, 11:03:08
     Author     : FX506
 --%>
@@ -7,8 +7,9 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
     <head>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <title>JSP Page</title>
     </head>
@@ -43,7 +44,7 @@
                                 <div class="mb-3">
                                     <label for="nombre">Nombre:</label>
                                     <input type="text" id="nombre" name="nombre" required minlength="3" class="form-control" >
-                                    <span id="error-usuario" style="color: red"></span>
+                                    <span id="error-usuario"></span>
 
                                 </div>
 
@@ -51,23 +52,22 @@
                                 <div class="mb-3">
                                     <label for="email">Email:</label>
                                     <input type="email" id="email" name="email" class="form-control" >
-                                    <div id="emailInUse">
-                                        <span id="error-email" style="color: red"></span>
-                                    </div>
+                                    <span id="error-email"></span>
+
                                 </div>
 
 
                                 <div class="mb-3">
                                     <label for="contrasena">Contraseña:</label>
                                     <input type="password" id="contrasena" name="contrasena" class="form-control" >
-                                    <span id="error-contraseña" style="color: red"></span>
+                                    <span id="error-contraseña"></span>
                                 </div>
 
 
                                 <div class="mb-3">
                                     <label for="contrasena2">Repetir Contraseña:</label>
                                     <input type="password" id="contrasena2" name="contrasena2" class="form-control" >
-                                    <span id="error-contraseña2" style="color: red"></span>
+                                    <span id="error-contraseña2"></span>
                                 </div>
 
                                 <div class=" d-flex justify-content-center">
@@ -91,14 +91,8 @@
                 <a href="/home/users/login"  class="btn btn-primary btn-center me-3">¿Tienes ya cuenta?</a>
 
             </div>
-
-
-
         </div>
-
-
-
-
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
         <script src="${pageContext.request.contextPath}/functions/functions.js"></script>
     </body>
 

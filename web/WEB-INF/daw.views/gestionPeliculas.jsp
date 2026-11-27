@@ -8,8 +8,9 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    
     <head>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <title>JSP Page</title>
     </head>
@@ -29,7 +30,7 @@
 
                     <div >
 
-                        <button id="botonAnadir" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#myModal" > Añadir Películas </button>
+                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#myModal" > Añadir Películas </button>
 
                     </div>
 
@@ -47,11 +48,9 @@
                     <div class="row w-100">
                         <c:forEach var="pelicula" items="${peliculas}">
                             <div class="col-md-4 mb-3">
-                                <div class="card">
-                                    <img src="${pageContext.request.contextPath}/img/posters/${pelicula.posterUrl}.jpg" class="card-img-top" alt="${pelicula.titulo}">
+                                <div class="card h-100">
+                                    <img src="${pageContext.request.contextPath}/img/posters/${pelicula.posterUrl}.jpg" class="card-img-top" alt="${pelicula.titulo}" style="height: 400px; object-fit: cover;">
                                     <div class="card-body">
-                                        
-                                        
                                         <h5 class="card-title">${pelicula.titulo}</h5>
                                         <p class="card-text">${pelicula.descripcion}</p>
                                         <p class="text-muted">Estreno: ${pelicula.fecha_estreno} | Nota: ${pelicula.puntuacionMedia}</p>
@@ -60,7 +59,7 @@
 
                                         <div class="mb-3">
 
-                                            <button id="botonEditar" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#ModalEditarPeli"
+                                            <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#ModalEditarPeli"
                                                     data-bs-id="${pelicula.id}"
                                                     data-bs-titulo="${pelicula.titulo}"
                                                     data-bs-descripcion="${pelicula.descripcion}"
@@ -89,7 +88,7 @@
 
                     <div class="mt-3">
 
-                        <button id="botonAnadir" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#myModal" > Añadir Películas </button>
+                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#myModal" > Añadir Películas </button>
 
                     </div>
 
@@ -109,36 +108,36 @@
 
                             <div class="d-flex align-items-center mb-3">
 
-                                <label style="width: 100px" for="titulo">Título:</label>
-                                <input id="titulo" type="text" name="titulo" required>
+                                <label style="width: 110px" class="flex-shrink-0 mb-0" for="titulo">Título:</label>
+                                <input id="titulo" type="text" name="titulo" class="form-control flex-grow-1" required>
 
                             </div>
 
                             <div class="d-flex align-items-center mb-3">
 
-                                <label style="width: 100px" for="descripcion">Descripción:</label>
-                                <input id="descripcion" name="descripcion">
+                                <label style="width: 110px" class="flex-shrink-0 mb-0" for="descripcion">Descripción:</label>
+                                <textarea id="descripcion" name="descripcion" class="form-control flex-grow-1" rows="3"></textarea>
 
                             </div>
 
                             <div class="d-flex align-items-center mb-3">
 
-                                <label style="width: 100px" for="fecha" >Fecha de Estreno:</label>
-                                <input id="fecha" name="fecha" type="date">
+                                <label style="width: 110px" class="flex-shrink-0 mb-0" for="fecha" >Fecha de Estreno:</label>
+                                <input id="fecha" name="fecha" type="date" class="form-control flex-grow-1">
 
                             </div>
 
                             <div class="d-flex align-items-center mb-3">
 
-                                <label style="width: 100px" for="poster"> Póster:</label>
-                                <input id="poster" name ="poster" type="file">
+                                <label style="width: 110px" class="flex-shrink-0 mb-0" for="poster"> Póster:</label>
+                                <input id="poster" name ="poster" type="file" class="form-control flex-grow-1">
 
                             </div>
 
                             <div class="d-flex align-items-center mb-0">
 
-                                <label style="width: 100px" for="puntuacionMedia">Puntuación Media:</label>
-                                <select id="puntuacion" name="puntuacionMedia" type="number" class="form-select-sm" >
+                                <label style="width: 110px" class="flex-shrink-0 mb-0" for="puntuacionMedia">Puntuación Media:</label>
+                                <select id="puntuacionMedia" name="puntuacionMedia" type="number" class="form-control flex-grow-1" >
                                     <option value="10">10</option>
                                     <option value="9">9</option>
                                     <option value="8">8</option>
@@ -186,36 +185,36 @@
 
                             <div class="d-flex align-items-center mb-3">
 
-                                <label style="width: 100px" for="edit-titulo">Título:</label>
-                                <input id="edit-titulo" type="text" name="titulo" required>
+                                <label style="width: 110px" class="flex-shrink-0 mb-0" for="edit-titulo">Título:</label>
+                                <input id="edit-titulo" type="text" name="titulo" class="form-control flex-grow-1" required>
 
                             </div>
 
                             <div class="d-flex align-items-center mb-3">
 
-                                <label style="width: 100px" for="edit-descripcion">Descripción:</label>
-                                <input id="edit-descripcion" name="descripcion">
+                                <label style="width: 110px" class="flex-shrink-0 mb-0" for="edit-descripcion">Descripción:</label>
+                                <textarea id="edit-descripcion" name="descripcion" class="form-control flex-grow-1"></textarea>
 
                             </div>
 
                             <div class="d-flex align-items-center mb-3">
 
-                                <label style="width: 100px" for="edit-fecha" >Fecha de Estreno:</label>
-                                <input id="edit-fecha" name="fecha" type="date">
+                                <label style="width: 110px" class="flex-shrink-0 mb-0" for="edit-fecha" >Fecha de Estreno:</label>
+                                <input id="edit-fecha" name="fecha" type="date" class="form-control flex-grow-1">
 
                             </div>
 
                             <div class="d-flex align-items-center mb-3">
 
-                                <label style="width: 100px" for="edit-poster"> Póster:</label>
-                                <input id="edit-poster" name ="poster" type="file">
+                                <label style="width: 110px" class="flex-shrink-0 mb-0" for="edit-poster"> Póster:</label>
+                                <input id="edit-poster" name ="poster" type="file" class="form-control flex-grow-1">
 
                             </div>
 
                             <div class="d-flex align-items-center mb-0">
 
-                                <label style="width: 100px" for="edit-puntuacionMedia">Puntuación Media:</label>
-                                <select id="edit-puntuacion" name="puntuacionMedia" type="number" class="form-select-sm" >
+                                <label style="width: 110px" class="flex-shrink-0 mb-0" for="edit-puntuacionMedia">Puntuación Media:</label>
+                                <select id="edit-puntuacionMedia" name="puntuacionMedia" type="number" class="form-control flex-grow-1" >
                                     <option value="10">10</option>
                                     <option value="9">9</option>
                                     <option value="8">8</option>

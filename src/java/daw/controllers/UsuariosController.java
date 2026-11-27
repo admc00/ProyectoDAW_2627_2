@@ -4,6 +4,7 @@
  */
 package daw.controllers;
 
+import daw.model.Reseña;
 import org.mindrot.jbcrypt.BCrypt;
 import daw.model.Usuarios;
 import jakarta.annotation.Resource;
@@ -41,12 +42,6 @@ public class UsuariosController extends HttpServlet {
     private UserTransaction utx;
     private static final Logger Log = Logger.getLogger(UsuariosController.class.getName());
 
-    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-
-    }
-
-    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**
      * Handles the HTTP <code>GET</code> method.
      *
@@ -86,6 +81,31 @@ public class UsuariosController extends HttpServlet {
 
                 }
                 break;
+
+            case "/perfil":
+
+                HttpSession sesionPerfil = request.getSession(false);
+                if (sesionPerfil != null) {
+                    Usuarios usuario = (Usuarios) sesionPerfil.getAttribute("usuarioLogueado");
+                    if (usuario != null) {
+                        
+                        TypedQuery<Reseña> queryResenasUsuario = em.createNamedQuery("Resena.findByUsuarioId", Reseña.class);
+                        queryResenasUsuario.setParameter("idUsuario", usuario.getId());
+                        List<Reseña> listaResenasUsuario = queryResenasUsuario.getResultList();
+                        
+                        sesionPerfil.setAttribute("resenasUsuario", listaResenasUsuario);
+                        
+                        RequestDispatcher rd = request.getRequestDispatcher("/WEB-INF/daw.views/perfil.jsp");
+                        rd.forward(request, response);
+                        return;
+                    } else {
+
+                        sesionPerfil.setAttribute("mensajeError", "Debes iniciar sesión para ver tu perfil.");
+                        response.sendRedirect(request.getContextPath() + "/users/login");
+                        return;
+                    }
+
+                }
 
             default:
                 vista = "error";
@@ -152,8 +172,13 @@ public class UsuariosController extends HttpServlet {
 
     private void iniciarsesion(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
-        String contrasena = request.getParameter("contrasena");
-        String email = request.getParameter("email");
+        String contrasena = request.getParameter("contrasenaLogin");
+        String email = request.getParameter("emailLogin");
+        HttpSession sesion = request.getSession();
+
+        if (email != null) {
+            email = email.toLowerCase();
+        }
 
         try {
             if (contrasena == null || email == null) {
@@ -161,11 +186,14 @@ public class UsuariosController extends HttpServlet {
             }
             TypedQuery<Usuarios> queryUsuarios = em.createNamedQuery("Usuarios.findByEmail", Usuarios.class);
             queryUsuarios.setParameter("email", email);
-            if (email.equals(queryUsuarios.getSingleResult().getEmail())) {
-                Usuarios u = queryUsuarios.getSingleResult();
+
+            Usuarios resultado = queryUsuarios.getSingleResult();
+
+            if (email.equals(resultado.getEmail())) {
+                Usuarios u = resultado;
 
                 if (verificarPassword(contrasena, u.getContraseña())) {
-                    HttpSession sesion = request.getSession();
+
                     sesion.setAttribute("usuarioLogueado", u);
                     response.sendRedirect(request.getContextPath());
                 } else {
@@ -177,8 +205,11 @@ public class UsuariosController extends HttpServlet {
 
         } catch (Exception e) {
 
-            RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/daw.views/login.jsp");
-            dispatcher.forward(request, response);
+            System.err.println("ERROR CAPTURADO EN EL CATCH:" + e.getMessage());
+
+            sesion.setAttribute("mensajeError", "El email/contraseña no son correctos.Vuelva a intentarlo.");
+
+            response.sendRedirect(request.getContextPath() + "/users/login");
         }
 
     }
@@ -189,11 +220,15 @@ public class UsuariosController extends HttpServlet {
         String contraseña = request.getParameter("contrasena");
         String contraseña2 = request.getParameter("contrasena2");
 
+        if (email != null) {
+            email = email.toLowerCase();
+        }
+
         System.out.println("DEBUG -> Nombre: " + name + " | Email: " + email + " | Pass1: " + contraseña + " | Pass2: " + contraseña2);
 
         try {
 
-            if (name == null || email == null || !email.contains("@") || contraseña == null || contraseña.length() < 4 || contraseña2 == null || contraseña2.length() < 4) {
+            if (name == null || email == null || contraseña == null || contraseña.length() < 4 || contraseña2 == null || contraseña2.length() < 4 || name.length() < 3) {
                 throw new IllegalArgumentException("Datos no válidos.");
             }
 
@@ -201,7 +236,13 @@ public class UsuariosController extends HttpServlet {
                 throw new IllegalArgumentException("Las dos contraseñas no coinciden.");
             }
 
-            TypedQuery<Integer> queryEmail = em.createQuery("SELECT COUNT(u) FROM Usuarios u WHERE u.email = :email", Integer.class);
+            if (!email.matches("^[-\\w.%+]{1,64}@(?:[a-zA-Z0-9-]{1,63}\\.){1,125}[a-zA-Z]{2,63}")) {
+                throw new IllegalArgumentException("El correo no es válido.");
+            }
+
+            System.out.println(email);
+
+            TypedQuery<Long> queryEmail = em.createQuery("SELECT COUNT(u) FROM Usuarios u WHERE u.email = :email", Long.class);
             queryEmail.setParameter("email", email);
             if (queryEmail.getSingleResult() > 0) {
                 throw new EntityExistsException("Ya existe el correo electrónico.");
@@ -217,10 +258,8 @@ public class UsuariosController extends HttpServlet {
 
         } catch (Exception e) {
 
-            System.err.println("ERROR CAPTURADO EN EL CATCH:");
-            e.printStackTrace();
+            System.err.println("ERROR CAPTURADO EN EL CATCH:" + e.getMessage());
 
-            request.setAttribute("error", e.getMessage());
             RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/daw.views/register.jsp");
             dispatcher.forward(request, response);
         }
@@ -266,19 +305,29 @@ public class UsuariosController extends HttpServlet {
         String email = request.getParameter("email");
         String respuesta;
 
-        TypedQuery<Usuarios> q = em.createNamedQuery("Usuarios.findByEmail", Usuarios.class);
-        q.setParameter("email", email);
-        List<Usuarios> lu = q.getResultList();
+        if (email != null) {
 
-        if (!lu.isEmpty()) {
-            respuesta = "Email no válido";
-        } else {
-            respuesta = "Ok";
-        }
+            email = email.toLowerCase();
 
-        response.setContentType("text/html;charset=UTF-8");
-        try (PrintWriter out = response.getWriter()) {
-            out.println(respuesta);
+            if (email.matches("^[-\\w.%+]{1,64}@(?:[a-zA-Z0-9-]{1,63}\\.){1,125}[a-zA-Z]{2,63}$")) {
+
+                TypedQuery<Usuarios> q = em.createNamedQuery("Usuarios.findByEmail", Usuarios.class);
+                q.setParameter("email", email);
+                List<Usuarios> lu = q.getResultList();
+
+                if (!lu.isEmpty()) {
+                    respuesta = "El email ya existe";
+                } else {
+                    respuesta = "Ok";
+                }
+
+                response.setContentType("text/html;charset=UTF-8");
+                try (PrintWriter out = response.getWriter()) {
+                    out.println(respuesta);
+                }
+
+            }
+
         }
 
     }

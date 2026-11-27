@@ -7,20 +7,15 @@ let f = document.getElementById("formulario");
 
 
 if (f) {
-    f.addEventListener("change", checkData);
+    f.addEventListener("submit", checkData);
 }
 
-const myModal = document.getElementById('myModal');
-const myInput = document.getElementById('botonAnadir');
 
-const ModalEditarPeli = document.getElementById('ModalEditarPeli');
-const InputEditar = document.getElementById('botonEditar');
+let ModalEditarPeli = document.getElementById('ModalEditarPeli');
 
-if (myModal) {
-    myModal.addEventListener('shown.bs.modal', () => {
-        myInput.focus();
-    });
-}
+let modalEditarResena = document.getElementById('modalEditarResena');
+
+
 
 if (ModalEditarPeli) {
 
@@ -34,16 +29,14 @@ if (ModalEditarPeli) {
         const fecha = botonPulsado.getAttribute('data-bs-fecha');
         const puntuacionRaw = botonPulsado.getAttribute('data-bs-puntuacion');
 
-        const puntuacion = puntuacionRaw ? Math.round(parseFloat(puntuacionRaw)) : "";
+        const puntuacion = parseFloat(puntuacionRaw);
 
 
         document.getElementById('edit-id').value = id;
         document.getElementById('edit-titulo').value = titulo;
         document.getElementById('edit-descripcion').value = descripcion;
         document.getElementById('edit-fecha').value = fecha;
-        document.getElementById('edit-puntuacion').value = puntuacion;
-
-        InputEditar.focus();
+        document.getElementById('edit-puntuacionMedia').value = puntuacion;
 
 
     });
@@ -51,10 +44,34 @@ if (ModalEditarPeli) {
 
 }
 
+if (modalEditarResena) {
+
+    modalEditarResena.addEventListener('shown.bs.modal', (event) => {
+
+        const boton = event.relatedTarget;
+        
+        const id = boton.getAttribute('data-id');
+        
+        const puntuacionRaw = boton.getAttribute('data-puntuacion');
+        
+        const texto = boton.getAttribute('data-texto');
+                
+               
+        const puntuacion = parseFloat(puntuacionRaw);
+        
+        document.getElementById('edit-idResena').value = id;
+        document.getElementById('edit-puntuacion').value = puntuacion;
+        document.getElementById('edit-texto').value = texto;
+
+    });
+
+}
+
 function mostrarError(idSpan, mensaje) {
     const span = document.getElementById(idSpan);
     if (span) {
         span.textContent = mensaje;
+        span.className = "text-danger";
     }
 }
 
@@ -63,6 +80,7 @@ function esValido(idSpan) {
     const span = document.getElementById(idSpan);
     if (span) {
         span.textContent = "";
+        span.className = "";
     }
 }
 
@@ -76,9 +94,9 @@ function checkData(evt) {
     let con2 = document.getElementById("contrasena2");
     let nombre = document.getElementById("nombre");
     let email = document.getElementById("email");
-    
-    let regex = /^[-\\w.%+]{1,64}@(?:[a-zA-Z0-9-]{1,63}\\.){1,125}[a-zA-Z]{2,63}i/;
-   
+
+    let regex = /^[-\w.%+]{1,64}@(?:[a-zA-Z0-9-]{1,63}\.){1,125}[a-zA-Z]{2,63}$/i;
+
 
     if (nombre.value == null || nombre.value == "" || nombre.value.length == 0 || nombre.value.length <= 3) {
         mostrarError("error-usuario", "El usuario debe tener al menos 3 caracteres.");
@@ -87,11 +105,11 @@ function checkData(evt) {
         esValido("error-usuario");
 
     }
-    
-    if(!regex.test("email")){
+
+    if (!regex.test(email.value)) {
         mostrarError("error-email", "El email no es correcto.");
         ok = false;
-    }else {
+    } else {
         esValido("error-email");
     }
 
@@ -141,6 +159,30 @@ function limpiarToastError() {
 }
 
 
+let toastCesta = document.getElementById('toastCesta');
+
+if (toastCesta) {
+    document.addEventListener("DOMContentLoaded", function () {
+
+        let cuerpoCesta = toastCesta.querySelector(".toast-body");
+        if (cuerpoCesta && cuerpoCesta.textContent !== "") {
+            const toast = new bootstrap.Toast(toastCesta);
+            toast.show();
+        }
+        
+        toastCesta.addEventListener("hidden.bs.toast", limpiarToastCesta);
+
+    });
+}
+
+function limpiarToastCesta() {
+    let cuerpoCesta = toastCesta.querySelector(".toast-body");
+    if (cuerpoCesta) {
+        cuerpoCesta.textContent = "";
+    }
+}
+
+
 
 let email = document.getElementById("email");
 
@@ -150,6 +192,7 @@ if (email) {
 
 async function emailDuplicadoFetch() {
 
+    let span = document.getElementById("error-email");
     let email = document.getElementById("email");
     let datos = new URLSearchParams(`email=${email.value}`);
     let response = await fetch("/home/users/comprobarEmail", {
@@ -160,8 +203,7 @@ async function emailDuplicadoFetch() {
     if (response.ok) {
 
         const data = await response.text();
-        let duplicado = document.getElementById("emailInUse");
-        
+
         let respuesta = data;
         let estilo;
         if (respuesta.includes("Ok"))
@@ -169,15 +211,9 @@ async function emailDuplicadoFetch() {
         else
             estilo = "text-danger";
 
-        let span = document.getElementById("mensaje");
-        if (!span) {
-            span = document.createElement("span");
-            span.setAttribute("id", "mensaje");
-            duplicado.appendChild(span);
-        }
 
         span.setAttribute("class", estilo);
-        span.innerHTML = respuesta;
+        span.textContent = respuesta;
     }
 
 }
